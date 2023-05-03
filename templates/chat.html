@@ -1,0 +1,36 @@
+<!-- 这个页面会自动继承bast.html文件模板的全部内容 -->
+{% extends "base.html" %}
+{% block content %}
+<!-- 问答界面 -->
+<!-- 展示回答的结果 -->
+
+
+<div class="result"></div>
+<form action="/chat" method="post">
+    <input name="question" placeholder="Send a message..."><!-- Flask可以从name属性中获取元素的值 -->
+    <button type="button" id="submitBtn"><i class="fa-solid fa-location-arrow"></i></button>
+</form>
+
+{% endblock %}
+
+{% block myscript %}
+<script type="text/javaScript">
+    $(function(){
+        $("#submitBtn").click(function(event){
+            // 阻止表单默认的提交行为
+            event.preventDefault();
+            $(".result").html("正在查询，请稍后...");
+            $.ajax({
+                url:"/chat",
+                type:"POST",
+                data:{"question":$("input[name='question']").val()},
+                success:function(data){
+                    $(".result").html(data);
+                }
+            })
+        })
+    })
+</script>
+<!-- 在JavaScript中，$符号通常被用作函数或变量名的前缀或前导符号。它通常被用作jQuery库的别名或缩写，用于简化代码书写和提高可读性。 -->
+
+{% endblock %}
