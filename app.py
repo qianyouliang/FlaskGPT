@@ -1,26 +1,44 @@
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request, Response, jsonify
 import openai
-
-openai.api_key = "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"
-
+import time
+openai.api_key = "输入你的OpenAI API Key"
+from langchain import OpenAI
+from langchain.callbacks import get_openai_callback
+from langchain.callbacks.base import BaseCallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+import os
+import json
 
 app = Flask("FlaskGPT")
 
-@app.route("/")#这里的/表示网站的根目录，即网站的首页，这里意思是当用户访问网站的首页时，将会执行index函数将返回的网页内容返回给用户
+@app.route("/")
 def index():
-    return render_template("chat.html")#这里使用render_template函数，将base.html模板渲染成网页返回给用户
+    return render_template("chat.html")
 
-#创建一个路由，当用户访问点击按钮时，将会上传问题并返回答案
-@app.route("/chat",methods=["POST"])
+@app.route("/chat", methods=["POST","GET"])
 def chat():
-    #获取用户输入的问题
-    question = str(request.form.get("question"))
+    
+    question = str(request.args.get("question",""))
+    print(question)
     if question:
-        #调用模型，获取答案
-        result = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user","content": question}],
-    )
-        return result['choices'][0]['message']['content'].strip().replace('\n','<br/>')
-    return 'no question'            
-app.run(debug=True)
+        def stream():
+            result = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": question}],
+                stream=True
+            )
+            for line in result:
+                if line['choices'][0]['finish_reason'] is not None:
+                    data = "[DONE]"
+                else:
+                    data = line['choices'][0]["delta"].get("content", "")
+                
+                yield 'data:%s\n\n' % json.dumps({"data": data})
+
+                if data == "[DONE]":
+                    break                 
+        return Response(stream(), mimetype='text/event-stream')
+    else:
+        return "Missing data!"
+if __name__ == '__main__':    
+    app.run(debug=True)

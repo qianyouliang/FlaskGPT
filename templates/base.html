@@ -1,13 +1,33 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
+
+<head>
+  <!-- 必须的 meta 标签 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <!-- Bootstrap 的 CSS 文件 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.2.1/css/all.css" rel="stylesheet">
+  <!-- jQuery 和 Bootstrap 集成包（集成了 Popper） -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+  <title>FlaskGPT</title>
+
   <style>
-    *{
-      padding:0px;
-      margin:0px;
+    * {
+      padding: 0px;
+      margin: 0px;
     }
-    input:focus, textarea:focus, select:focus{
+
+    input:focus,
+    textarea:focus,
+    select:focus {
       outline: none;
     }
+
     #topBar {
       display: flex;
       line-height: 5vh;
@@ -17,10 +37,14 @@
       background-color: #202123;
       color: white;
       box-sizing: border-box;
+      position: fixed;
+      z-index: 700;
     }
-    #topBar h2{
+
+    #topBar h2 {
       width: 18%;
     }
+
     #topBar ul {
       display: flex;
       justify-content: space-around;
@@ -29,11 +53,13 @@
       height: 100%;
       list-style: none;
     }
+
     #topBar ul li {
       width: 100%;
       height: 100%;
 
     }
+
     #topBar ul li a {
       color: white;
       text-decoration: none;
@@ -42,58 +68,71 @@
       font-size: 1.2em;
       transition: all 0.2s;
     }
+
     #topBar ul li a:hover {
       background-color: white;
       color: black;
     }
-    #leftBar {  
+
+    #leftBar {
       text-align: center;
+      position: fixed;
+      top: 8vh;
       height: 95vh;
-      min-width: 10px;
+      width: 8%;
       background-color: #202123;
       color: white;
       box-sizing: border-box;
+      z-index: 700;
     }
+
     #rightBar {
-  
+
       text-align: center;
       height: 95vh;
-      background-color:#343541;
-      color: white;
+      width: 92%;
+      background-color: white;
+      color: black;
       box-sizing: border-box;
     }
+
     #content {
-      height: 100%;
-      width: 100%;
-      background-color: #343541;
-      color: white;
-      box-sizing: border-box;
-      position: relative;
-    }
-    #content .result{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin:0 auto;
-      width: 75%;
-      height: 100%;
-      padding-bottom: 5vh;
-    }
-    #content form{
       position: absolute;
-      bottom:5vh;
+      top: 8vh;
+      left: 8vw;
+      height: 100%;
+      width: 91vw;
+      box-sizing: border-box;
+      padding: 5vh 10vw;
+    }
+
+    .result {
+      width: 80%;
+      height: auto;
+      padding-bottom: 5vh;
+      text-align: left;
+      padding-top: 5vh;
+
+    }
+
+    #content form {
+      position: fixed;
+      bottom: 5vh;
+      left: 13%;
       display: flex;
       text-align: center;
-      margin:0 auto;
+      margin: 0 auto;
       width: 75%;
       height: 5vh;
       border: 1px solid #202123;
       box-shadow: 4px 4px 8px #202123;
       border-radius: 5px;
       margin: 0 auto;
-      
+      background-color: #202123;
+
     }
-    #content form input{
+
+    #content form input {
       width: 100%;
       min-height: 20px;
       line-height: 20px;
@@ -105,50 +144,42 @@
       border: none;
       padding-left: 20px;
     }
-    #content form button{
+
+    #content form button {
       background-color: #343541;
       color: white;
       border: none;
       padding-right: 20px;
     }
   </style>
-  <head>
-    <!-- 必须的 meta 标签 -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Bootstrap 的 CSS 文件 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.2.1/css/all.css" rel="stylesheet">
-    <title>FlaskGPT</title>
-  </head>
-  <body>
-    <div class="container-fluid" id="topBar">
-      <h2>FlaskGPT</h2>
-      <ul>
-        <li><a href="">数据采集</a></li>
-        <li><a href="">数据预处理</a></li>
-        <li><a href="">数据分析</a></li>
-        <li><a href="">数据可视化</a></li>
-        <li><a href="">数据报告</a></li>
-        <li><a href="">数据存储</a></li>
-      </ul>
-    </div>
-    <div class="container-fluid" >
-      <div class="row">
-        <div class="col-2" id="leftBar">左侧菜单</div>
-        <div class="col-10" id="rightBar">
-          <!-- 拥有这个base.html页面以后，我们可以基于此页面创建更多的子页面，而对于子页面，我们只需要替换这个content就可以了 -->
-          <div id="content">{% block content %}{% endblock %}</div>
-          <!-- 使用jquery发送异步请求 -->
-          
-        </div>
+</head>
+
+<body>
+  <div class="container-fluid" id="topBar">
+    <h2>FlaskGPT</h2>
+    <ul>
+      <li><a href="">数据采集</a></li>
+      <li><a href="">数据预处理</a></li>
+      <li><a href="">数据分析</a></li>
+      <li><a href="">数据可视化</a></li>
+      <li><a href="">数据报告</a></li>
+      <li><a href="">数据存储</a></li>
+    </ul>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div id="leftBar">左侧菜单</div>
+      <div id="rightBar">
+        <!-- 拥有这个base.html页面以后，我们可以基于此页面创建更多的子页面，而对于子页面，我们只需要替换这个content就可以了 -->
+        <div id="content">{% block content %}{% endblock %}</div>
+        <!-- 使用jquery发送异步请求 -->
+
       </div>
     </div>
+  </div>
 
-    <!-- jQuery 和 Bootstrap 集成包（集成了 Popper） -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    {% block myscript %}{% endblock %}
-  </body>
+
+  {% block myscript %}{% endblock %}
+</body>
+
 </html>
